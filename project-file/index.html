@@ -1,1 +1,900 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <!--
+    France Lessons Platform
+    Front-end only demo, backend-ready architecture.
+    Features:
+    - Dark mode with localStorage
+    - Admin-only Upload & Create (fake login)
+    - Categories: Orthographe, Grammaire, Conjugaison, Vocabulaire, Expression écrite, Compréhension orale
+    - 2 lessons per type (static base)
+    - Community uploads area (front-end simulated)
+    - Search bar
+    - Hover tooltips on key words
+    - Unsplash images (2+ per lesson, no duplicates, inside cards)
+    - Rich-text "Word-like" editor modal for Create
+    - Upload .docx/.txt (front-end only; real parsing needs backend or extra libs)
+    - Clear TODO comments where backend should be connected
+  -->
 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plateforme de Leçons de Français</title>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Google Fonts (example) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Optional icon library (for small icons only) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+</head>
+<body>
+  <!--
+    Root app container.
+    Dark mode is applied by toggling a class on <body> (e.g., .dark-mode).
+  -->
+  <div id="app-root">
+
+    <!-- ================= HEADER / NAVBAR ================= -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo">
+          <!-- Simple logo text; you can replace with SVG later -->
+          <span class="logo-main">Français+</span>
+          <span class="logo-sub">Plateforme de leçons premium</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <!-- Search bar -->
+        <div class="search-bar">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Rechercher une leçon, un mot-clé, un type..."
+            aria-label="Rechercher une leçon"
+          />
+          <button id="searchButton" class="btn btn-primary">
+            <i class="fa fa-search"></i>
+            <span>Rechercher</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Dark mode toggle button (simple button, not switch) -->
+        <button id="darkModeToggle" class="btn btn-ghost" aria-label="Basculer le mode sombre">
+          <i class="fa fa-moon"></i>
+          <span>Mode sombre</span>
+        </button>
+
+        <!-- Admin login / status -->
+        <div class="admin-status">
+          <span id="adminStatusLabel" class="admin-status-label">Visiteur</span>
+          <button id="adminLoginButton" class="btn btn-outline">
+            <i class="fa fa-user-shield"></i>
+            <span>Admin</span>
+          </button>
+          <button id="adminLogoutButton" class="btn btn-outline hidden">
+            <i class="fa fa-door-open"></i>
+            <span>Quitter</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= CATEGORY TABS ================= -->
+    <nav class="category-nav">
+      <!--
+        Category buttons filter the lesson grid.
+        data-category corresponds to lesson cards' data-category.
+      -->
+      <button class="category-btn active" data-category="all">
+        <span>Toutes</span>
+      </button>
+      <button class="category-btn" data-category="orthographe">
+        <span>Orthographe</span>
+      </button>
+      <button class="category-btn" data-category="grammaire">
+        <span>Grammaire</span>
+      </button>
+      <button class="category-btn" data-category="conjugaison">
+        <span>Conjugaison</span>
+      </button>
+      <button class="category-btn" data-category="vocabulaire">
+        <span>Vocabulaire</span>
+      </button>
+      <button class="category-btn" data-category="expression">
+        <span>Expression écrite</span>
+      </button>
+      <button class="category-btn" data-category="comprehension">
+        <span>Compréhension orale</span>
+      </button>
+    </nav>
+
+    <!-- ================= MAIN LAYOUT ================= -->
+    <main class="app-main">
+      <!-- LEFT: Lesson grid -->
+      <section class="lesson-section">
+        <header class="section-header">
+          <div>
+            <h1>Leçons de français</h1>
+            <p>
+              Explore des leçons organisées par type : orthographe, grammaire, conjugaison, vocabulaire,
+              expression écrite et compréhension orale.
+            </p>
+          </div>
+          <div class="section-actions">
+            <!-- Upload & Create buttons: visible only for admin (controlled by JS) -->
+            <button id="uploadButton" class="btn btn-primary admin-only">
+              <i class="fa fa-upload"></i>
+              <span>Uploader un fichier</span>
+            </button>
+            <button id="createButton" class="btn btn-accent admin-only">
+              <i class="fa fa-file-word"></i>
+              <span>Créer une leçon</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Lesson grid container -->
+        <div id="lessonGrid" class="lesson-grid">
+          <!--
+            Static base lessons (2 per category).
+            Each card:
+            - data-category
+            - data-type (base | upload | created)
+            - data-title, data-keywords for search
+            - 2+ images inside
+          -->
+
+          <!-- ========== ORTHOGRAPHE - LESSON 1 ========== -->
+          <article
+            class="lesson-card"
+            data-category="orthographe"
+            data-type="base"
+            data-title="Les accents en français"
+            data-keywords="accent aigu grave circonflexe orthographe voyelles"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1517840933442-d2d1a05edb75?auto=format&fit=crop&w=800&q=80"
+                alt="Cahier et stylo pour apprendre l'orthographe"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80"
+                alt="Livres de français sur une table"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Les accents en français</h2>
+              <p class="lesson-type-label">Orthographe · Niveau débutant</p>
+              <p class="lesson-description">
+                Découvre les différents <span class="keyword" data-tooltip="é, è, ê, ë...">accents</span> en français
+                et apprends à les utiliser correctement pour améliorer ton
+                <span class="keyword" data-tooltip="La manière correcte d'écrire les mots.">orthographe</span>.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  En français, il existe plusieurs types d'<span class="keyword" data-tooltip="Accent aigu: é">accent aigu</span>,
+                  d'<span class="keyword" data-tooltip="Accent grave: è, à, ù">accent grave</span> et
+                  d'<span class="keyword" data-tooltip="Accent circonflexe: ê, â, ô...">accent circonflexe</span>.
+                  Chaque accent peut changer la <span class="keyword" data-tooltip="Le sens d'un mot.">signification</span>
+                  d'un mot.
+                </p>
+                <p>
+                  Par exemple, <span class="keyword" data-tooltip="Préposition">a</span> et
+                  <span class="keyword" data-tooltip="Verbe avoir au présent: il a">à</span> n'ont pas le même rôle.
+                  Il est donc essentiel de bien maîtriser les accents pour écrire sans fautes.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== ORTHOGRAPHE - LESSON 2 ========== -->
+          <article
+            class="lesson-card"
+            data-category="orthographe"
+            data-type="base"
+            data-title="Les homophones courants"
+            data-keywords="homophones orthographe grammaire a à et est son sont"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=800&q=80"
+                alt="Tableau avec des mots écrits à la craie"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"
+                alt="Élève écrivant dans un cahier"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Les homophones courants</h2>
+              <p class="lesson-type-label">Orthographe · Niveau intermédiaire</p>
+              <p class="lesson-description">
+                Apprends à distinguer les <span class="keyword" data-tooltip="Mots qui se prononcent pareil mais s'écrivent différemment.">homophones</span>
+                comme <span class="keyword" data-tooltip="Verbe avoir">a</span> /
+                <span class="keyword" data-tooltip="Préposition">à</span> ou
+                <span class="keyword" data-tooltip="Conjonction de coordination">et</span> /
+                <span class="keyword" data-tooltip="Verbe être">est</span>.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Les homophones sont des mots qui se prononcent de la même façon mais qui n'ont pas le même
+                  <span class="keyword" data-tooltip="Ce que veut dire un mot.">sens</span> ni la même orthographe.
+                </p>
+                <p>
+                  Par exemple, <span class="keyword" data-tooltip="Il a un livre.">a</span> est une forme du verbe
+                  <span class="keyword" data-tooltip="Verbe avoir.">avoir</span>, alors que
+                  <span class="keyword" data-tooltip="Je vais à l'école.">à</span> est une préposition.
+                  De même, <span class="keyword" data-tooltip="Il mange et il boit.">et</span> relie deux éléments,
+                  tandis que <span class="keyword" data-tooltip="Il est content.">est</span> est une forme du verbe
+                  <span class="keyword" data-tooltip="Verbe être.">être</span>.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== GRAMMAIRE - LESSON 1 ========== -->
+          <article
+            class="lesson-card"
+            data-category="grammaire"
+            data-type="base"
+            data-title="Les types de phrases"
+            data-keywords="grammaire phrase déclarative interrogative impérative exclamative"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80"
+                alt="Professeur expliquant une leçon de grammaire"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"
+                alt="Élève concentré en classe"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Les types de phrases</h2>
+              <p class="lesson-type-label">Grammaire · Niveau débutant</p>
+              <p class="lesson-description">
+                Découvre les différents <span class="keyword" data-tooltip="Déclarative, interrogative, impérative, exclamative.">types de phrases</span>
+                et apprends à les reconnaître dans un texte.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Une phrase <span class="keyword" data-tooltip="Elle donne une information.">déclarative</span> sert à
+                  <span class="keyword" data-tooltip="Dire quelque chose.">affirmer</span> ou à nier quelque chose.
+                  Une phrase <span class="keyword" data-tooltip="Elle pose une question.">interrogative</span> sert à
+                  poser une question.
+                </p>
+                <p>
+                  Une phrase <span class="keyword" data-tooltip="Elle donne un ordre ou un conseil.">impérative</span>
+                  exprime un ordre ou un conseil, tandis qu'une phrase
+                  <span class="keyword" data-tooltip="Elle exprime une émotion forte.">exclamative</span> exprime une
+                  émotion forte.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== GRAMMAIRE - LESSON 2 ========== -->
+          <article
+            class="lesson-card"
+            data-category="grammaire"
+            data-type="base"
+            data-title="Les classes grammaticales"
+            data-keywords="nom verbe adjectif adverbe pronom déterminant"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=800&q=80"
+                alt="Livres de grammaire française"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"
+                alt="Étudiant lisant un livre"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Les classes grammaticales</h2>
+              <p class="lesson-type-label">Grammaire · Niveau intermédiaire</p>
+              <p class="lesson-description">
+                Apprends à reconnaître les <span class="keyword" data-tooltip="Nom, verbe, adjectif, adverbe, pronom, déterminant...">classes grammaticales</span>
+                pour analyser correctement une phrase.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Le <span class="keyword" data-tooltip="Personne, animal, chose, idée.">nom</span> désigne une
+                  personne, un animal, une chose ou une idée. Le
+                  <span class="keyword" data-tooltip="Action ou état.">verbe</span> exprime une action ou un état.
+                </p>
+                <p>
+                  L'<span class="keyword" data-tooltip="Il précise un nom.">adjectif</span> qualifie un nom, tandis que
+                  l'<span class="keyword" data-tooltip="Il précise un verbe, un adjectif ou un autre adverbe.">adverbe</span>
+                  précise un verbe, un adjectif ou un autre adverbe.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== CONJUGAISON - LESSON 1 ========== -->
+          <article
+            class="lesson-card"
+            data-category="conjugaison"
+            data-type="base"
+            data-title="Le présent de l'indicatif"
+            data-keywords="présent indicatif conjugaison verbes réguliers irréguliers"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1518081461904-9acb9c1e48a1?auto=format&fit=crop&w=800&q=80"
+                alt="Élève écrivant des verbes au tableau"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"
+                alt="Cahier de conjugaison"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Le présent de l'indicatif</h2>
+              <p class="lesson-type-label">Conjugaison · Niveau débutant</p>
+              <p class="lesson-description">
+                Maîtrise la <span class="keyword" data-tooltip="Temps qui exprime une action qui se passe maintenant.">conjugaison au présent</span>
+                des verbes réguliers et irréguliers.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Les verbes du premier groupe se terminent en
+                  <span class="keyword" data-tooltip="Exemple: parler, aimer, chanter.">-er</span>. Au présent, on
+                  ajoute des terminaisons comme <span class="keyword" data-tooltip="Je parle, tu parles, il parle.">-e, -es, -e</span>.
+                </p>
+                <p>
+                  Certains verbes sont <span class="keyword" data-tooltip="Ils ne suivent pas le modèle habituel.">irréguliers</span>,
+                  comme <span class="keyword" data-tooltip="Je suis, tu es, il est.">être</span> ou
+                  <span class="keyword" data-tooltip="J'ai, tu as, il a.">avoir</span>. Il faut les apprendre par cœur.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== CONJUGAISON - LESSON 2 ========== -->
+          <article
+            class="lesson-card"
+            data-category="conjugaison"
+            data-type="base"
+            data-title="Le passé composé"
+            data-keywords="passé composé auxiliaire être avoir participe passé"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"
+                alt="Élève révisant le passé composé"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80"
+                alt="Livres ouverts sur un bureau"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Le passé composé</h2>
+              <p class="lesson-type-label">Conjugaison · Niveau intermédiaire</p>
+              <p class="lesson-description">
+                Apprends à former le <span class="keyword" data-tooltip="Temps qui exprime une action terminée.">passé composé</span>
+                avec les auxiliaires <span class="keyword" data-tooltip="J'ai, tu as, il a...">avoir</span> et
+                <span class="keyword" data-tooltip="Je suis, tu es, il est...">être</span>.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Le passé composé se forme avec un <span class="keyword" data-tooltip="Avoir ou être.">auxiliaire</span>
+                  au présent et un <span class="keyword" data-tooltip="Forme du verbe qui ne change pas.">participe passé</span>.
+                  Exemple : <span class="keyword" data-tooltip="J'ai mangé.">j'ai mangé</span>.
+                </p>
+                <p>
+                  Avec l'auxiliaire <span class="keyword" data-tooltip="Verbes de mouvement, pronominaux...">être</span>,
+                  le participe passé s'accorde en genre et en nombre avec le sujet :
+                  <span class="keyword" data-tooltip="Elles sont arrivées.">elles sont arrivées</span>.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== VOCABULAIRE - LESSON 1 ========== -->
+          <article
+            class="lesson-card"
+            data-category="vocabulaire"
+            data-type="base"
+            data-title="Le vocabulaire de l'école"
+            data-keywords="vocabulaire école classe cahier stylo professeur élève"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"
+                alt="Salle de classe avec des élèves"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80"
+                alt="Matériel scolaire sur une table"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Le vocabulaire de l'école</h2>
+              <p class="lesson-type-label">Vocabulaire · Niveau débutant</p>
+              <p class="lesson-description">
+                Découvre le <span class="keyword" data-tooltip="Mots liés à l'école.">vocabulaire de l'école</span> :
+                <span class="keyword" data-tooltip="Objet pour écrire.">stylo</span>,
+                <span class="keyword" data-tooltip="Cahier pour écrire les leçons.">cahier</span>,
+                <span class="keyword" data-tooltip="Personne qui enseigne.">professeur</span>...
+              </p>
+              <div class="lesson-body">
+                <p>
+                  À l'école, tu utilises un <span class="keyword" data-tooltip="Pour écrire.">stylo</span>, un
+                  <span class="keyword" data-tooltip="Pour prendre des notes.">cahier</span> et un
+                  <span class="keyword" data-tooltip="Pour transporter tes affaires.">cartable</span>.
+                </p>
+                <p>
+                  Le <span class="keyword" data-tooltip="Il explique les leçons.">professeur</span> enseigne la leçon
+                  et l'<span class="keyword" data-tooltip="Celui qui apprend.">élève</span> écoute, lit et écrit.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== VOCABULAIRE - LESSON 2 ========== -->
+          <article
+            class="lesson-card"
+            data-category="vocabulaire"
+            data-type="base"
+            data-title="Les émotions et les sentiments"
+            data-keywords="vocabulaire émotions sentiments heureux triste en colère"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80"
+                alt="Personnes exprimant différentes émotions"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80"
+                alt="Visages souriants"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Les émotions et les sentiments</h2>
+              <p class="lesson-type-label">Vocabulaire · Niveau intermédiaire</p>
+              <p class="lesson-description">
+                Enrichis ton vocabulaire avec des mots qui décrivent les
+                <span class="keyword" data-tooltip="Joie, tristesse, peur, colère...">émotions</span> et les
+                <span class="keyword" data-tooltip="Ce que l'on ressent.">sentiments</span>.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Tu peux te sentir <span class="keyword" data-tooltip="Content, satisfait.">heureux</span>,
+                  <span class="keyword" data-tooltip="Pas content, déçu.">triste</span> ou
+                  <span class="keyword" data-tooltip="Très fâché.">en colère</span>.
+                </p>
+                <p>
+                  Il est important de savoir exprimer ce que tu ressens avec des mots précis pour mieux communiquer
+                  avec les autres.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== EXPRESSION ÉCRITE - LESSON 1 ========== -->
+          <article
+            class="lesson-card"
+            data-category="expression"
+            data-type="base"
+            data-title="Écrire un paragraphe descriptif"
+            data-keywords="expression écrite paragraphe description adjectifs"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=800&q=80"
+                alt="Personne écrivant un texte"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1517840933442-d2d1a05edb75?auto=format&fit=crop&w=800&q=80"
+                alt="Carnet de notes"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Écrire un paragraphe descriptif</h2>
+              <p class="lesson-type-label">Expression écrite · Niveau débutant</p>
+              <p class="lesson-description">
+                Apprends à <span class="keyword" data-tooltip="Dire comment est une personne, un lieu, un objet.">décrire</span>
+                une personne, un lieu ou un objet avec des
+                <span class="keyword" data-tooltip="Ils donnent des détails.">adjectifs</span> précis.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Un paragraphe descriptif commence souvent par une
+                  <span class="keyword" data-tooltip="Première phrase qui présente le sujet.">phrase d'introduction</span>,
+                  suivie de détails organisés.
+                </p>
+                <p>
+                  Utilise des <span class="keyword" data-tooltip="Beau, grand, lumineux...">adjectifs</span> et des
+                  <span class="keyword" data-tooltip="Mots qui précisent.">compléments</span> pour rendre ta description
+                  vivante et précise.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== EXPRESSION ÉCRITE - LESSON 2 ========== -->
+          <article
+            class="lesson-card"
+            data-category="expression"
+            data-type="base"
+            data-title="Rédiger un récit au passé"
+            data-keywords="expression écrite récit passé composé imparfait"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80"
+                alt="Personne écrivant une histoire"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80"
+                alt="Livre ouvert avec une histoire"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Rédiger un récit au passé</h2>
+              <p class="lesson-type-label">Expression écrite · Niveau intermédiaire</p>
+              <p class="lesson-description">
+                Apprends à écrire un <span class="keyword" data-tooltip="Histoire racontée.">récit</span> en utilisant le
+                <span class="keyword" data-tooltip="Temps pour les actions terminées.">passé composé</span> et
+                l'<span class="keyword" data-tooltip="Temps pour les descriptions et les habitudes.">imparfait</span>.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Dans un récit, le <span class="keyword" data-tooltip="Il fait avancer l'histoire.">passé composé</span>
+                  sert à raconter les actions principales, tandis que l'
+                  <span class="keyword" data-tooltip="Il décrit le décor, les personnages.">imparfait</span> décrit le
+                  contexte.
+                </p>
+                <p>
+                  Par exemple : <span class="keyword" data-tooltip="Imparfait.">Il faisait nuit</span> (description) quand
+                  <span class="keyword" data-tooltip="Passé composé.">il a entendu un bruit</span> (action).
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== COMPRÉHENSION ORALE - LESSON 1 ========== -->
+          <article
+            class="lesson-card"
+            data-category="comprehension"
+            data-type="base"
+            data-title="Comprendre une consigne orale"
+            data-keywords="compréhension orale consigne écouter comprendre"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"
+                alt="Professeur donnant une consigne"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80"
+                alt="Élèves écoutant en classe"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Comprendre une consigne orale</h2>
+              <p class="lesson-type-label">Compréhension orale · Niveau débutant</p>
+              <p class="lesson-description">
+                Apprends à <span class="keyword" data-tooltip="Écouter avec attention.">écouter</span> et à comprendre
+                une <span class="keyword" data-tooltip="Instruction donnée par le professeur.">consigne</span> orale.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Pour bien comprendre une consigne, il faut
+                  <span class="keyword" data-tooltip="Ne pas parler en même temps.">rester silencieux</span>,
+                  <span class="keyword" data-tooltip="Regarder la personne qui parle.">regarder le professeur</span> et
+                  <span class="keyword" data-tooltip="Se concentrer sur les mots importants.">se concentrer</span>.
+                </p>
+                <p>
+                  N'hésite pas à <span class="keyword" data-tooltip="Demander une explication.">poser une question</span>
+                  si tu n'as pas compris.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- ========== COMPRÉHENSION ORALE - LESSON 2 ========== -->
+          <article
+            class="lesson-card"
+            data-category="comprehension"
+            data-type="base"
+            data-title="Repérer les informations importantes"
+            data-keywords="compréhension orale informations principales détails"
+          >
+            <div class="lesson-card-media">
+              <img
+                src="https://images.unsplash.com/photo-1517840933442-d2d1a05edb75?auto=format&fit=crop&w=800&q=80"
+                alt="Élève prenant des notes"
+                class="lesson-image"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80"
+                alt="Notes sur un cahier"
+                class="lesson-image secondary-image"
+              />
+            </div>
+            <div class="lesson-card-content">
+              <h2 class="lesson-title">Repérer les informations importantes</h2>
+              <p class="lesson-type-label">Compréhension orale · Niveau intermédiaire</p>
+              <p class="lesson-description">
+                Entraîne-toi à repérer les <span class="keyword" data-tooltip="Ce qui est essentiel.">informations importantes</span>
+                dans un message oral.
+              </p>
+              <div class="lesson-body">
+                <p>
+                  Quand tu écoutes un texte, essaie d'identifier les
+                  <span class="keyword" data-tooltip="Qui, quoi, où, quand, comment, pourquoi.">mots-clés</span> et les
+                  <span class="keyword" data-tooltip="Les idées principales.">idées principales</span>.
+                </p>
+                <p>
+                  Tu peux prendre des <span class="keyword" data-tooltip="Mots ou phrases courtes pour se souvenir.">notes</span>
+                  pour ne pas oublier les informations importantes.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!--
+            Dynamic cards (uploads + created lessons) will be injected here by JS.
+            They will follow the same structure as above.
+          -->
+        </div>
+      </section>
+
+      <!-- RIGHT: Sidebar for community uploads / filters / info -->
+      <aside class="sidebar">
+        <section class="sidebar-section">
+          <h2>Uploads de la communauté</h2>
+          <p>
+            Ici s'affichent les leçons <strong>uploadées</strong> ou <strong>créées</strong> par les administrateurs.
+            Les visiteurs peuvent les consulter, mais seuls les admins peuvent ajouter du contenu.
+          </p>
+          <div id="communityList" class="community-list">
+            <!-- Dynamic list of uploaded/created lessons (summary cards) -->
+          </div>
+        </section>
+
+        <section class="sidebar-section">
+          <h2>Filtres rapides</h2>
+          <button class="filter-chip" data-filter="base">Leçons officielles</button>
+          <button class="filter-chip" data-filter="upload">Fichiers uploadés</button>
+          <button class="filter-chip" data-filter="created">Leçons créées</button>
+          <button class="filter-chip" data-filter="all">Tout afficher</button>
+        </section>
+
+        <section class="sidebar-section">
+          <h2>Astuce</h2>
+          <p>
+            Survole les <span class="keyword inline" data-tooltip="Mots importants dans la leçon.">mots-clés</span>
+            pour voir une explication rapide. Utilise la recherche pour trouver une leçon précise.
+          </p>
+        </section>
+      </aside>
+    </main>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Admin login modal -->
+    <div id="adminLoginModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <header class="modal-header">
+          <h2>Connexion administrateur</h2>
+          <button class="modal-close" data-close-modal="adminLoginModal">
+            <i class="fa fa-times"></i>
+          </button>
+        </header>
+        <div class="modal-body">
+          <p>
+            Cette connexion est une <strong>simulation front-end</strong>. Pour une vraie sécurité, il faudra connecter
+            cette interface à un <strong>backend</strong> (base de données, authentification).
+          </p>
+          <label class="form-label" for="adminPasswordInput">Mot de passe admin</label>
+          <input
+            type="password"
+            id="adminPasswordInput"
+            class="form-input"
+            placeholder="Entrez le mot de passe admin"
+          />
+          <p class="form-hint">
+            (Mot de passe défini dans <code>script.js</code> — à modifier plus tard pour la vraie version.)
+          </p>
+          <p id="adminLoginError" class="form-error hidden">
+            Mot de passe incorrect. Réessayez.
+          </p>
+        </div>
+        <footer class="modal-footer">
+          <button class="btn btn-ghost" data-close-modal="adminLoginModal">Annuler</button>
+          <button id="adminLoginConfirm" class="btn btn-primary">Se connecter</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Upload modal -->
+    <div id="uploadModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <header class="modal-header">
+          <h2>Uploader un fichier de leçon</h2>
+          <button class="modal-close" data-close-modal="uploadModal">
+            <i class="fa fa-times"></i>
+          </button>
+        </header>
+        <div class="modal-body">
+          <p>
+            Sélectionne un fichier depuis ton ordinateur. Dans une vraie application, ce fichier serait envoyé au
+            <strong>serveur</strong> et partagé avec tous les utilisateurs.
+          </p>
+          <label class="form-label" for="uploadFileInput">Choisir un fichier</label>
+          <input
+            type="file"
+            id="uploadFileInput"
+            class="form-input"
+            accept=".doc,.docx,.txt"
+          />
+          <label class="form-label" for="uploadCategorySelect">Catégorie de la leçon</label>
+          <select id="uploadCategorySelect" class="form-input">
+            <option value="orthographe">Orthographe</option>
+            <option value="grammaire">Grammaire</option>
+            <option value="conjugaison">Conjugaison</option>
+            <option value="vocabulaire">Vocabulaire</option>
+            <option value="expression">Expression écrite</option>
+            <option value="comprehension">Compréhension orale</option>
+          </select>
+          <p class="form-hint">
+            Le contenu du fichier sera <strong>lu côté navigateur</strong> (dans cette démo) et affiché dans une carte.
+            Pour une vraie gestion de fichiers Word (.docx), il faudra un traitement côté serveur ou une librairie
+            spécialisée.
+          </p>
+          <p id="uploadError" class="form-error hidden">
+            Veuillez sélectionner un fichier valide.
+          </p>
+        </div>
+        <footer class="modal-footer">
+          <button class="btn btn-ghost" data-close-modal="uploadModal">Annuler</button>
+          <button id="uploadConfirmButton" class="btn btn-primary">Uploader</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Create lesson ("Word-like" editor) modal -->
+    <div id="createModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-large">
+        <header class="modal-header">
+          <h2>Créer une nouvelle leçon</h2>
+          <button class="modal-close" data-close-modal="createModal">
+            <i class="fa fa-times"></i>
+          </button>
+        </header>
+        <div class="modal-body">
+          <p>
+            Cette fenêtre simule un <strong>éditeur de type Word</strong> dans le navigateur. Dans une vraie
+            application, le contenu pourrait être exporté en <code>.docx</code> et stocké sur un serveur.
+          </p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="createTitleInput">Titre de la leçon</label>
+              <input
+                type="text"
+                id="createTitleInput"
+                class="form-input"
+                placeholder="Ex: Les adjectifs qualificatifs"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="createCategorySelect">Catégorie</label>
+              <select id="createCategorySelect" class="form-input">
+                <option value="orthographe">Orthographe</option>
+                <option value="grammaire">Grammaire</option>
+                <option value="conjugaison">Conjugaison</option>
+                <option value="vocabulaire">Vocabulaire</option>
+                <option value="expression">Expression écrite</option>
+                <option value="comprehension">Compréhension orale</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="form-label" for="createDescriptionInput">Courte description</label>
+          <textarea
+            id="createDescriptionInput"
+            class="form-input"
+            rows="2"
+            placeholder="Résumé rapide de la leçon..."
+          ></textarea>
+
+          <!-- Simple toolbar for the rich text editor -->
+          <div class="editor-toolbar">
+            <button class="editor-btn" data-command="bold"><i class="fa fa-bold"></i></button>
+            <button class="editor-btn" data-command="italic"><i class="fa fa-italic"></i></button>
+            <button class="editor-btn" data-command="underline"><i class="fa fa-underline"></i></button>
+            <button class="editor-btn" data-command="insertUnorderedList"><i class="fa fa-list-ul"></i></button>
+            <button class="editor-btn" data-command="insertOrderedList"><i class="fa fa-list-ol"></i></button>
+            <button class="editor-btn" data-command="formatBlock" data-value="h3">H3</button>
+            <button class="editor-btn" data-command="formatBlock" data-value="p">P</button>
+          </div>
+
+          <!-- Contenteditable area simulating Word -->
+          <div
+            id="createEditor"
+            class="editor-area"
+            contenteditable="true"
+          >
+            <p>
+              Commence à écrire ta leçon ici. Tu peux sélectionner des mots importants et les transformer plus tard en
+              <strong>mots-clés</strong> avec des effets de survol (gérés par le script).
+            </p>
+          </div>
+
+          <p class="form-hint">
+            Les mots-clés seront détectés automatiquement ou ajoutés plus tard en entourant certains mots avec des
+            balises <code>&lt;span class="keyword"&gt;</code> (géré par le script).
+          </p>
+
+          <p id="createError" class="form-error hidden">
+            Merci de remplir au moins le titre et le contenu de la leçon.
+          </p>
+        </div>
+        <footer class="modal-footer">
+          <button class="btn btn-ghost" data-close-modal="createModal">Annuler</button>
+          <button id="createPublishButton" class="btn btn-accent">Publier la leçon</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Tooltip container (for keyword hover) -->
+    <div id="tooltip" class="tooltip hidden"></div>
+
+  </div> <!-- /#app-root -->
+
+  <!-- Main script -->
+  <script src="script.js"></script>
+</body>
+</html>
