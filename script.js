@@ -1,631 +1,374 @@
-// =========================
-// Sélecteurs
-// =========================
-const body = document.body;
+/* =========================================================
+   ALAEAI – ULTIMATE SUPER SCRIPT.JS
+   - Search + filters (type + origin)
+   - Card click → premium modal
+   - Admin mode (simple login)
+   - Lazy image loading + no duplicates
+   - Keyword tooltips
+   - Smooth, safe, all in one file
+   ========================================================= */
 
-// Dark mode
-const darkModeToggle = document.getElementById('darkModeToggle');
-
-// Recherche
-const searchInput = document.getElementById('searchInput');
-const searchButton = document.getElementById('searchButton');
-
-// Catégories
-const categoryButtons = document.querySelectorAll('.category-btn');
-
-// Filtres par type
-const filterChips = document.querySelectorAll('.filter-chip');
-
-// Grille de leçons
-const lessonsContainer = document.getElementById('lessonsContainer');
-const lessonCards = () => Array.from(document.querySelectorAll('#lessonsContainer .lesson-card'));
-
-// No results
-const noResultsMessage = document.getElementById('noResultsMessage');
-const resetFiltersButton = document.getElementById('resetFiltersButton');
-
-// Tooltip
-const tooltip = document.getElementById('tooltip');
-
-// Hero buttons
-const scrollLessonsBtn = document.getElementById('scrollLessons');
-const scrollServicesBtn = document.getElementById('scrollServices');
-const servicesSection = document.getElementById('servicesSection');
-
-// Admin
-const adminLoginButton = document.getElementById('adminLoginButton');
-const adminLogoutButton = document.getElementById('adminLogoutButton');
-const adminModal = document.getElementById('adminModal');
-const adminPasswordInput = document.getElementById('adminPasswordInput');
-const adminLoginConfirmButton = document.getElementById('adminLoginConfirmButton');
-const adminError = document.getElementById('adminError');
-const adminOnlyElements = document.querySelectorAll('.admin-only');
-
-// Create lesson
-const openCreateLessonModalButton = document.getElementById('openCreateLessonModal');
-const createLessonModal = document.getElementById('createLessonModal');
-const createLessonConfirmButton = document.getElementById('createLessonConfirmButton');
-const createLessonError = document.getElementById('createLessonError');
-const lessonTitleInput = document.getElementById('lessonTitleInput');
-const lessonCategorySelect = document.getElementById('lessonCategorySelect');
-const lessonTypeSelect = document.getElementById('lessonTypeSelect');
-const lessonDescriptionInput = document.getElementById('lessonDescriptionInput');
-const lessonImageInput = document.getElementById('lessonImageInput');
-const dynamicLessonsCount = document.getElementById('dynamicLessonsCount');
-
-// Modal close
-const modalCloseButtons = document.querySelectorAll('.modal-close');
-const modalBackdrops = document.querySelectorAll('.modal-backdrop');
-
-// =========================
-// État global
-// =========================
-let isDarkMode = false;
 let isAdmin = false;
-let activeCategory = 'all';
-let activeTypeFilter = 'all';
-let dynamicLessons = [];
+let lessons = [];
+let currentSearch = "";
+let currentCategory = "toutes";
+let currentOrigin = "toutes";
 
-const ADMIN_PASSWORD = 'alae-admin-2026';
+let lessonModal;
+let lessonModalContent;
+let lessonModalClose;
+let tooltipEl;
 
-// =========================
-// Utilitaires
-// =========================
-function normalizeText(text) {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+/* -----------------------------
+   INIT
+----------------------------- */
 
-function openModal(modal) {
-  if (!modal) return;
-  modal.classList.remove('hidden');
-}
-
-function closeModal(modal) {
-  if (!modal) return;
-  modal.classList.add('hidden');
-}
-
-function closeAllModals() {
-  [adminModal, createLessonModal].forEach(m => m && m.classList.add('hidden'));
-}
-
-function safeLocalStorageSet(key, value) {
-  try {
-    localStorage.setItem(key, value);
-  } catch (e) {}
-}
-
-function safeLocalStorageGet(key) {
-  try {
-    return localStorage.getItem(key);
-  } catch (e) {
-    return null;
-  }
-}
-
-// =========================
-// Dark mode
-// =========================
-function applyDarkModeState() {
-  if (isDarkMode) {
-    body.classList.add('dark-mode');
-    if (darkModeToggle) darkModeToggle.setAttribute('aria-pressed', 'true');
-  } else {
-    body.classList.remove('dark-mode');
-    if (darkModeToggle) darkModeToggle.setAttribute('aria-pressed', 'false');
-  }
-}
-
-function toggleDarkMode() {
-  isDarkMode = !isDarkMode;
-  applyDarkModeState();
-  safeLocalStorageSet('alaeai_dark_mode', isDarkMode ? '1' : '0');
-}
-
-function initDarkMode() {
-  const stored = safeLocalStorageGet('alaeai_dark_mode');
-  if (stored === '1') {
-    isDarkMode = true;
-  }
-  applyDarkModeState();
-}
-
-// =========================
-// Admin
-// =========================
-function updateAdminUI() {
-  if (isAdmin) {
-    adminLoginButton?.classList.add('hidden');
-    adminLogoutButton?.classList.remove('hidden');
-    adminOnlyElements.forEach(el => el.classList.remove('hidden'));
-  } else {
-    adminLoginButton?.classList.remove('hidden');
-    adminLogoutButton?.classList.add('hidden');
-    adminOnlyElements.forEach(el => el.classList.add('hidden'));
-  }
-}
-
-function setAdminState(value) {
-  isAdmin = value;
-  updateAdminUI();
-  safeLocalStorageSet('alaeai_is_admin', isAdmin ? '1' : '0');
-}
-
-function initAdminState() {
-  const stored = safeLocalStorageGet('alaeai_is_admin');
-  if (stored === '1') {
-    isAdmin = true;
-  }
-  updateAdminUI();
-}
-
-function initAdminModal() {
-  adminLoginButton?.addEventListener('click', () => {
-    adminError.classList.add('hidden');
-    adminPasswordInput.value = '';
-    openModal(adminModal);
-    setTimeout(() => adminPasswordInput.focus(), 50);
-  });
-
-  adminLogoutButton?.addEventListener('click', () => {
-    setAdminState(false);
-  });
-
-  adminLoginConfirmButton?.addEventListener('click', () => {
-    const pwd = adminPasswordInput.value;
-    if (pwd === ADMIN_PASSWORD) {
-      adminError.classList.add('hidden');
-      setAdminState(true);
-      closeModal(adminModal);
-    } else {
-      adminError.textContent = 'Mot de passe incorrect.';
-      adminError.classList.remove('hidden');
-    }
-  });
-
-  adminPasswordInput?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      adminLoginConfirmButton.click();
-    }
-  });
-
-  modalCloseButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const modalId = btn.getAttribute('data-close-modal');
-      if (!modalId) return;
-      const modal = document.getElementById(modalId);
-      closeModal(modal);
-    });
-  });
-
-  modalBackdrops.forEach(backdrop => {
-    backdrop.addEventListener('click', () => {
-      const modal = backdrop.closest('.modal');
-      closeModal(modal);
-    });
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closeAllModals();
-    }
-  });
-}
-
-// =========================
-// Filtres leçons
-// =========================
-function updateNoResultsState() {
-  const visibleCards = lessonCards().filter(card => card.style.display !== 'none');
-  if (visibleCards.length === 0) {
-    noResultsMessage?.classList.remove('hidden');
-  } else {
-    noResultsMessage?.classList.add('hidden');
-  }
-}
-
-function applyFilters() {
-  const searchValue = normalizeText(searchInput ? searchInput.value : '');
-  const cards = lessonCards();
-
-  cards.forEach(card => {
-    const cardCategory = card.getAttribute('data-category') || 'all';
-    const cardType = card.getAttribute('data-type') || 'officielle';
-
-    let visible = true;
-
-    if (activeCategory !== 'all' && cardCategory !== activeCategory) {
-      visible = false;
-    }
-
-    if (activeTypeFilter !== 'all' && cardType !== activeTypeFilter) {
-      visible = false;
-    }
-
-    if (visible && searchValue) {
-      const titleEl = card.querySelector('.lesson-title');
-      const descEl = card.querySelector('.lesson-description');
-      const bodyEl = card.querySelector('.lesson-body');
-
-      const titleText = titleEl ? normalizeText(titleEl.textContent) : '';
-      const descText = descEl ? normalizeText(descEl.textContent) : '';
-      const bodyText = bodyEl ? normalizeText(bodyEl.textContent) : '';
-
-      const combined = `${titleText} ${descText} ${bodyText}`;
-      if (!combined.includes(searchValue)) {
-        visible = false;
-      }
-    }
-
-    if (visible) {
-      card.style.display = '';
-      card.classList.remove('hidden');
-    } else {
-      card.style.display = 'none';
-      card.classList.add('hidden');
-    }
-  });
-
-  updateNoResultsState();
-}
-
-function setActiveCategory(category) {
-  activeCategory = category;
-  categoryButtons.forEach(btn => {
-    const cat = btn.getAttribute('data-category') || 'all';
-    const isActive = cat === category;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  initTooltip();
+  initLessons();
+  initSearch();
+  initCategoryFilters();
+  initOriginFilters();
+  initAdminLogin();
+  initHeroButtons();
+  initLessonModal();
+  initLessonCardClicks();
+  initLazyImages();
   applyFilters();
-}
+});
 
-function setActiveTypeFilter(type) {
-  activeTypeFilter = type;
-  filterChips.forEach(chip => {
-    const filter = chip.getAttribute('data-filter') || 'all';
-    chip.classList.toggle('active', filter === type);
+/* -----------------------------
+   LESSONS COLLECTOR
+----------------------------- */
+
+function initLessons() {
+  const cards = document.querySelectorAll(".lesson-card");
+  lessons = Array.from(cards).map(card => {
+    const title = (card.querySelector(".lesson-title")?.textContent || "").trim();
+    const typeLabel = (card.querySelector(".lesson-type-label")?.textContent || "").trim().toLowerCase();
+    const description = (card.querySelector(".lesson-description")?.textContent || "").trim();
+    const bodyText = (card.querySelector(".lesson-body")?.innerText || "").trim();
+
+    const type = card.dataset.type || inferTypeFromLabel(typeLabel);
+    const origin = (card.dataset.origin || "officielle").toLowerCase();
+
+    return {
+      el: card,
+      title,
+      type,
+      origin,
+      searchable: (title + " " + description + " " + bodyText).toLowerCase()
+    };
   });
-  applyFilters();
 }
 
-// =========================
-// Recherche
-// =========================
-function handleSearch() {
-  applyFilters();
+function inferTypeFromLabel(label) {
+  if (label.includes("orthographe")) return "orthographe";
+  if (label.includes("grammaire")) return "grammaire";
+  if (label.includes("conjugaison")) return "conjugaison";
+  if (label.includes("vocabulaire")) return "vocabulaire";
+  if (label.includes("expression")) return "expression écrite";
+  if (label.includes("compréhension")) return "compréhension orale";
+  return "autre";
 }
 
-function resetFilters() {
-  if (searchInput) searchInput.value = '';
-  setActiveCategory('all');
-  setActiveTypeFilter('all');
-  applyFilters();
-}
+/* -----------------------------
+   SEARCH
+----------------------------- */
 
-function initSearchAndFilters() {
-  searchButton?.addEventListener('click', e => {
-    e.preventDefault();
-    handleSearch();
-  });
+function initSearch() {
+  const searchBoxInput = document.querySelector(".search-box input");
+  const searchBtn = document.querySelector(".search-btn");
 
-  searchInput?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSearch();
-    }
-  });
+  if (!searchBoxInput) return;
 
-  searchInput?.addEventListener('input', () => {
+  searchBoxInput.addEventListener("input", () => {
+    currentSearch = searchBoxInput.value.toLowerCase();
     applyFilters();
   });
 
-  categoryButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cat = btn.getAttribute('data-category') || 'all';
-      setActiveCategory(cat);
-    });
-  });
-
-  filterChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const filter = chip.getAttribute('data-filter') || 'all';
-      setActiveTypeFilter(filter);
-    });
-  });
-
-  resetFiltersButton?.addEventListener('click', () => {
-    resetFilters();
-  });
-}
-
-// =========================
-// Tooltips mots-clés
-// =========================
-function initKeywordTooltips() {
-  const keywords = document.querySelectorAll('.keyword');
-
-  keywords.forEach(keyword => {
-    keyword.addEventListener('mouseenter', e => {
-      const text = keyword.getAttribute('data-tooltip');
-      if (!text || !tooltip) return;
-      tooltip.textContent = text;
-      tooltip.classList.remove('hidden');
-      positionTooltip(e);
-    });
-
-    keyword.addEventListener('mousemove', e => {
-      positionTooltip(e);
-    });
-
-    keyword.addEventListener('mouseleave', () => {
-      if (!tooltip) return;
-      tooltip.classList.add('hidden');
-    });
-
-    keyword.addEventListener('focus', e => {
-      const text = keyword.getAttribute('data-tooltip');
-      if (!text || !tooltip) return;
-      tooltip.textContent = text;
-      tooltip.classList.remove('hidden');
-      const rect = keyword.getBoundingClientRect();
-      tooltip.style.left = `${rect.left + rect.width / 2}px`;
-      tooltip.style.top = `${rect.top - 10}px`;
-    });
-
-    keyword.addEventListener('blur', () => {
-      if (!tooltip) return;
-      tooltip.classList.add('hidden');
-    });
-  });
-}
-
-function positionTooltip(e) {
-  if (!tooltip) return;
-  const offset = 14;
-  const x = e.clientX + offset;
-  const y = e.clientY + offset;
-  tooltip.style.left = `${x}px`;
-  tooltip.style.top = `${y}px`;
-}
-
-// =========================
-// Hero scroll
-// =========================
-function initHeroScroll() {
-  if (scrollLessonsBtn && lessonsContainer) {
-    scrollLessonsBtn.addEventListener('click', () => {
-      window.scrollTo({
-        top: lessonsContainer.offsetTop - 70,
-        behavior: 'smooth'
-      });
-    });
-  }
-
-  if (scrollServicesBtn && servicesSection) {
-    scrollServicesBtn.addEventListener('click', () => {
-      window.scrollTo({
-        top: servicesSection.offsetTop - 70,
-        behavior: 'smooth'
-      });
+  if (searchBtn) {
+    searchBtn.addEventListener("click", () => {
+      currentSearch = searchBoxInput.value.toLowerCase();
+      applyFilters();
     });
   }
 }
 
-// =========================
-// Images : fade-in
-// =========================
-function initImageLoadingEffects() {
-  const images = document.querySelectorAll('.lesson-image, .hero-image-main');
-  images.forEach(img => {
-    if (img.complete) {
-      img.classList.add('loaded');
+/* -----------------------------
+   CATEGORY FILTERS (TYPE)
+----------------------------- */
+
+function initCategoryFilters() {
+  const buttons = document.querySelectorAll(".category-btn");
+  if (!buttons.length) return;
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentCategory = (btn.dataset.category || "toutes").toLowerCase();
+      applyFilters();
+    });
+  });
+}
+
+/* -----------------------------
+   ORIGIN FILTERS (OFFICIELLE / UPLOADÉE / CRÉÉE)
+----------------------------- */
+
+function initOriginFilters() {
+  const chips = document.querySelectorAll(".filter-chip");
+  if (!chips.length) return;
+
+  chips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      chips.forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentOrigin = (chip.dataset.origin || "toutes").toLowerCase();
+      applyFilters();
+    });
+  });
+}
+
+/* -----------------------------
+   APPLY FILTERS
+----------------------------- */
+
+function applyFilters() {
+  let visibleCount = 0;
+
+  lessons.forEach(lesson => {
+    const matchesSearch =
+      !currentSearch ||
+      lesson.searchable.includes(currentSearch);
+
+    const matchesCategory =
+      currentCategory === "toutes" ||
+      lesson.type === currentCategory;
+
+    const matchesOrigin =
+      currentOrigin === "toutes" ||
+      lesson.origin === currentOrigin;
+
+    const show = matchesSearch && matchesCategory && matchesOrigin;
+    lesson.el.style.display = show ? "" : "none";
+    if (show) visibleCount++;
+  });
+
+  const noResults = document.querySelector(".no-results");
+  if (noResults) {
+    noResults.style.display = visibleCount === 0 ? "flex" : "none";
+  }
+}
+
+/* -----------------------------
+   ADMIN LOGIN
+----------------------------- */
+
+function initAdminLogin() {
+  const loginBtn = document.querySelector("#adminLoginBtn");
+  if (!loginBtn) return;
+
+  loginBtn.addEventListener("click", () => {
+    const pwd = prompt("Mot de passe administrateur :");
+    if (!pwd) return;
+
+    // Simple demo password – change if you want
+    if (pwd === "alae" || pwd === "admin123") {
+      isAdmin = true;
+      document.body.classList.add("admin-active");
+      alert("Mode administrateur activé.");
     } else {
-      img.addEventListener('load', () => {
-        img.classList.add('loaded');
-      });
+      alert("Mot de passe incorrect.");
     }
   });
 }
 
-// =========================
-// Admin : création de leçons
-// =========================
-function updateDynamicLessonsCount() {
-  if (!dynamicLessonsCount) return;
-  dynamicLessonsCount.textContent = `${dynamicLessons.length} ajoutée(s)`;
+/* -----------------------------
+   HERO BUTTONS (SCROLL TO LESSONS)
+----------------------------- */
+
+function initHeroButtons() {
+  const exploreBtn = document.querySelector("#exploreLessonsBtn");
+  const lessonsSection = document.querySelector("#lessonsSection");
+
+  if (exploreBtn && lessonsSection) {
+    exploreBtn.addEventListener("click", () => {
+      lessonsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 }
 
-function createLessonCardDOM(lesson) {
-  const article = document.createElement('article');
-  article.className = 'lesson-card';
-  article.setAttribute('data-category', lesson.category);
-  article.setAttribute('data-type', lesson.type);
+/* -----------------------------
+   TOOLTIP FOR KEYWORDS
+----------------------------- */
 
-  const media = document.createElement('div');
-  media.className = 'lesson-card-media';
+function initTooltip() {
+  tooltipEl = document.getElementById("tooltip");
+  if (!tooltipEl) {
+    tooltipEl = document.createElement("div");
+    tooltipEl.id = "tooltip";
+    tooltipEl.classList.add("hidden");
+    document.body.appendChild(tooltipEl);
+  }
 
-  const img = document.createElement('img');
-  img.className = 'lesson-image';
-  img.alt = lesson.title;
-  img.loading = 'lazy';
-  img.src =
-    lesson.image ||
-    'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80';
-
-  img.addEventListener('load', () => {
-    img.classList.add('loaded');
+  document.addEventListener("mouseover", e => {
+    const target = e.target.closest(".keyword");
+    if (!target) {
+      hideTooltip();
+      return;
+    }
+    const text = target.dataset.tooltip || target.getAttribute("title");
+    if (!text) return;
+    showTooltip(text, e.pageX, e.pageY);
   });
 
-  media.appendChild(img);
+  document.addEventListener("mousemove", e => {
+    if (!tooltipEl || tooltipEl.classList.contains("hidden")) return;
+    positionTooltip(e.pageX, e.pageY);
+  });
 
-  const content = document.createElement('div');
-  content.className = 'lesson-card-content';
-
-  const typeLabel = document.createElement('div');
-  typeLabel.className = 'lesson-type-label';
-  typeLabel.textContent = `${capitalizeCategory(lesson.category)} · Leçon créée`;
-
-  const title = document.createElement('h3');
-  title.className = 'lesson-title';
-  title.textContent = lesson.title;
-
-  const desc = document.createElement('p');
-  desc.className = 'lesson-description';
-  desc.textContent = lesson.description;
-
-  const body = document.createElement('div');
-  body.className = 'lesson-body';
-  const p = document.createElement('p');
-  p.textContent = 'Leçon ajoutée par l’administrateur. Tu peux la compléter avec des exemples, des exercices et des mots-clés.';
-  body.appendChild(p);
-
-  content.appendChild(typeLabel);
-  content.appendChild(title);
-  content.appendChild(desc);
-  content.appendChild(body);
-
-  article.appendChild(media);
-  article.appendChild(content);
-
-  return article;
+  document.addEventListener("mouseout", e => {
+    if (e.target.closest(".keyword")) hideTooltip();
+  });
 }
 
-function capitalizeCategory(cat) {
-  switch (cat) {
-    case 'orthographe':
-      return 'Orthographe';
-    case 'grammaire':
-      return 'Grammaire';
-    case 'conjugaison':
-      return 'Conjugaison';
-    case 'vocabulaire':
-      return 'Vocabulaire';
-    case 'expression':
-      return 'Expression écrite';
-    case 'comprehension':
-      return 'Compréhension orale';
-    default:
-      return cat;
-  }
+function showTooltip(text, x, y) {
+  tooltipEl.textContent = text;
+  tooltipEl.classList.remove("hidden");
+  positionTooltip(x, y);
 }
 
-function validateLessonForm() {
-  const title = lessonTitleInput.value.trim();
-  const description = lessonDescriptionInput.value.trim();
-
-  if (!title) {
-    return 'Le titre de la leçon est obligatoire.';
-  }
-  if (!description) {
-    return 'La description courte est obligatoire.';
-  }
-  return '';
+function positionTooltip(x, y) {
+  tooltipEl.style.left = x + "px";
+  tooltipEl.style.top = y + "px";
 }
 
-function handleCreateLesson() {
-  const error = validateLessonForm();
-  if (error) {
-    createLessonError.textContent = error;
-    createLessonError.classList.remove('hidden');
+function hideTooltip() {
+  if (!tooltipEl) return;
+  tooltipEl.classList.add("hidden");
+}
+
+/* -----------------------------
+   MODAL – CREATION
+----------------------------- */
+
+function initLessonModal() {
+  lessonModal = document.createElement("div");
+  lessonModal.id = "lessonViewModal";
+  lessonModal.className = "lesson-view-modal hidden";
+
+  lessonModal.innerHTML = `
+    <div class="lesson-view-backdrop"></div>
+    <div class="lesson-view-dialog">
+      <button class="lesson-view-close" aria-label="Fermer">✕</button>
+      <div class="lesson-view-content"></div>
+    </div>
+  `;
+
+  document.body.appendChild(lessonModal);
+
+  lessonModalContent = lessonModal.querySelector(".lesson-view-content");
+  lessonModalClose = lessonModal.querySelector(".lesson-view-close");
+
+  lessonModalClose.addEventListener("click", closeLessonModal);
+  lessonModal.querySelector(".lesson-view-backdrop")
+    .addEventListener("click", closeLessonModal);
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeLessonModal();
+  });
+}
+
+/* -----------------------------
+   MODAL – OPEN / CLOSE
+----------------------------- */
+
+function openLessonModal(card) {
+  const title = card.querySelector(".lesson-title")?.textContent || "";
+  const typeLabel = card.querySelector(".lesson-type-label")?.textContent || "";
+  const description = card.querySelector(".lesson-description")?.textContent || "";
+  const body = card.querySelector(".lesson-body")?.innerHTML || "";
+  const imgEl = card.querySelector(".lesson-image");
+  const imgSrc = imgEl?.getAttribute("data-src") || imgEl?.src || "";
+
+  lessonModalContent.innerHTML = `
+    <div class="lesson-view-header">
+      ${imgSrc ? `<img src="${imgSrc}" class="lesson-view-image" alt="${title}">` : ""}
+      <div class="lesson-view-info">
+        <div class="lesson-view-type">${typeLabel}</div>
+        <h2 class="lesson-view-title">${title}</h2>
+        <p class="lesson-view-description">${description}</p>
+      </div>
+    </div>
+    <div class="lesson-view-body">
+      ${body}
+    </div>
+    ${isAdmin ? `
+      <button class="lesson-view-edit-btn">Modifier la leçon</button>
+    ` : ""}
+  `;
+
+  const editBtn = lessonModalContent.querySelector(".lesson-view-edit-btn");
+  if (editBtn) {
+    editBtn.addEventListener("click", () => {
+      alert("Ici tu peux brancher un vrai éditeur plus tard.");
+    });
+  }
+
+  lessonModal.classList.remove("hidden");
+  setTimeout(() => lessonModal.classList.add("visible"), 10);
+}
+
+function closeLessonModal() {
+  if (!lessonModal) return;
+  lessonModal.classList.remove("visible");
+  setTimeout(() => lessonModal.classList.add("hidden"), 200);
+}
+
+/* -----------------------------
+   CARD CLICK → MODAL
+----------------------------- */
+
+function initLessonCardClicks() {
+  const cards = document.querySelectorAll(".lesson-card");
+  cards.forEach(card => {
+    card.style.cursor = "pointer";
+    card.addEventListener("click", () => openLessonModal(card));
+  });
+}
+
+/* -----------------------------
+   LAZY IMAGES (HERO + CARDS)
+----------------------------- */
+
+function initLazyImages() {
+  const images = document.querySelectorAll(".lesson-image, .hero-image-main");
+  if (!("IntersectionObserver" in window)) {
+    images.forEach(img => {
+      const dataSrc = img.getAttribute("data-src");
+      if (dataSrc) img.src = dataSrc;
+      img.classList.add("loaded");
+    });
     return;
   }
 
-  createLessonError.classList.add('hidden');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const img = entry.target;
+      const dataSrc = img.getAttribute("data-src");
+      if (dataSrc && img.src !== dataSrc) {
+        img.src = dataSrc;
+      }
+      img.addEventListener("load", () => img.classList.add("loaded"), { once: true });
+      observer.unobserve(img);
+    });
+  }, {
+    rootMargin: "80px 0px",
+    threshold: 0.1
+  });
 
-  const lesson = {
-    title: lessonTitleInput.value.trim(),
-    category: lessonCategorySelect.value,
-    type: lessonTypeSelect.value,
-    description: lessonDescriptionInput.value.trim(),
-    image: lessonImageInput.value.trim()
-  };
-
-  dynamicLessons.push(lesson);
-  safeLocalStorageSet('alaeai_dynamic_lessons', JSON.stringify(dynamicLessons));
-  updateDynamicLessonsCount();
-
-  const card = createLessonCardDOM(lesson);
-  lessonsContainer.appendChild(card);
-
-  // Réinitialiser le formulaire
-  lessonTitleInput.value = '';
-  lessonDescriptionInput.value = '';
-  lessonImageInput.value = '';
-  lessonCategorySelect.value = 'orthographe';
-  lessonTypeSelect.value = 'created';
-
-  closeModal(createLessonModal);
-  initKeywordTooltips();
-  initImageLoadingEffects();
-  applyFilters();
+  images.forEach(img => observer.observe(img));
 }
-
-function loadDynamicLessonsFromStorage() {
-  const stored = safeLocalStorageGet('alaeai_dynamic_lessons');
-  if (!stored) return;
-  try {
-    const parsed = JSON.parse(stored);
-    if (Array.isArray(parsed)) {
-      dynamicLessons = parsed;
-      dynamicLessons.forEach(lesson => {
-        const card = createLessonCardDOM(lesson);
-        lessonsContainer.appendChild(card);
-      });
-      updateDynamicLessonsCount();
-    }
-  } catch (e) {
-    // ignore
-  }
-}
-
-function initCreateLessonModal() {
-  openCreateLessonModalButton?.addEventListener('click', () => {
-    if (!isAdmin) return;
-    createLessonError.classList.add('hidden');
-    openModal(createLessonModal);
-    setTimeout(() => lessonTitleInput.focus(), 50);
-  });
-
-  createLessonConfirmButton?.addEventListener('click', () => {
-    handleCreateLesson();
-  });
-
-  lessonTitleInput?.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.metaKey) {
-      e.preventDefault();
-      handleCreateLesson();
-    }
-  });
-}
-
-// =========================
-// Init global
-// =========================
-document.addEventListener('DOMContentLoaded', () => {
-  initDarkMode();
-  initAdminState();
-  initAdminModal();
-  initKeywordTooltips();
-  initSearchAndFilters();
-  initHeroScroll();
-  initImageLoadingEffects();
-  loadDynamicLessonsFromStorage();
-  updateDynamicLessonsCount();
-
-  darkModeToggle?.addEventListener('click', () => {
-    toggleDarkMode();
-  });
-
-  setActiveCategory('all');
-  setActiveTypeFilter('all');
-  applyFilters();
-
-  initCreateLessonModal();
-});
