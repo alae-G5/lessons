@@ -4,824 +4,117 @@
   <meta charset="UTF-8" />
   <title>AlaeAI – Leçons de Français</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #050509;
-      --bg-soft: #0c0c14;
-      --card: #11111c;
-      --accent: #4f46e5;
-      --accent-soft: rgba(79, 70, 229, 0.12);
-      --accent-strong: rgba(79, 70, 229, 0.25);
-      --text: #f9fafb;
-      --muted: #9ca3af;
-      --border: #1f2933;
-      --danger: #f97373;
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
-      --transition-fast: 0.18s ease-out;
-      --transition-med: 0.28s ease-out;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-      background: radial-gradient(circle at top, #111827 0, #020617 45%, #020617 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 24px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .page {
-      width: 100%;
-      max-width: 1240px;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 32px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      background: radial-gradient(circle at 20% 0, #a855f7, #4f46e5 45%, #0ea5e9 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 30px rgba(79, 70, 229, 0.6);
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .brand-text span:first-child {
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
-
-    .brand-text span:last-child {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .pill {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--muted);
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.25);
-    }
-
-    .btn-ghost {
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--muted);
-      font-size: 12px;
-      padding: 7px 12px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .btn-ghost:hover {
-      background: rgba(15, 23, 42, 1);
-      border-color: #374151;
-      transform: translateY(-1px);
-    }
-
-    .btn-ghost span.icon {
-      font-size: 14px;
-    }
-
-    /* HERO */
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-      gap: 32px;
-      padding: 24px 24px 26px;
-      border-radius: 26px;
-      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.18), transparent 55%),
-                  radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 55%),
-                  #020617;
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      box-shadow: var(--shadow-soft);
-      margin-bottom: 26px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: -120px;
-      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.12), transparent 60%);
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    .hero-left {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      font-size: 11px;
-      color: var(--muted);
-      width: fit-content;
-    }
-
-    .hero-kicker span.badge {
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(34, 197, 94, 0.12);
-      color: #bbf7d0;
-      font-size: 10px;
-      border: 1px solid rgba(34, 197, 94, 0.4);
-    }
-
-    .hero-title {
-      font-size: clamp(26px, 3vw, 32px);
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-    }
-
-    .hero-title span.highlight {
-      background: linear-gradient(90deg, #a855f7, #4f46e5, #0ea5e9);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .hero-subtitle {
-      font-size: 14px;
-      color: var(--muted);
-      max-width: 460px;
-    }
-
-    .hero-metas {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .hero-metas span {
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .btn-primary {
-      border-radius: 999px;
-      border: none;
-      padding: 9px 16px;
-      font-size: 13px;
-      font-weight: 500;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 14px 30px rgba(79, 70, 229, 0.6);
-      transition: transform var(--transition-med), box-shadow var(--transition-med), filter var(--transition-med);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05);
-      box-shadow: 0 18px 40px rgba(79, 70, 229, 0.75);
-    }
-
-    .btn-outline {
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      padding: 9px 14px;
-      font-size: 13px;
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--muted);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .btn-outline:hover {
-      background: rgba(15, 23, 42, 1);
-      border-color: rgba(148, 163, 184, 0.7);
-      transform: translateY(-1px);
-    }
-
-    .hero-right {
-      position: relative;
-      z-index: 1;
-      border-radius: 22px;
-      overflow: hidden;
-      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), #020617);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-    }
-
-    .hero-media {
-      width: 100%;
-      height: 100%;
-      min-height: 220px;
-      max-height: 320px;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-    }
-
-    .hero-image-main {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scale(1.02) translateY(18px);
-      opacity: 0;
-      animation: heroFadeIn 1.2s ease forwards;
-    }
-
-    @keyframes heroFadeIn {
-      to {
-        transform: scale(1.02) translateY(0);
-        opacity: 1;
-      }
-    }
-
-    /* SEARCH + FILTERS */
-
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 18px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .search-box {
-      flex: 1 1 260px;
-      max-width: 420px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.7);
-    }
-
-    .search-box input {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: var(--text);
-      font-size: 13px;
-    }
-
-    .search-box input::placeholder {
-      color: rgba(148, 163, 184, 0.7);
-    }
-
-    .search-icon {
-      font-size: 14px;
-      color: rgba(148, 163, 184, 0.9);
-    }
-
-    .search-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 6px 10px;
-      font-size: 12px;
-      background: rgba(79, 70, 229, 0.16);
-      color: #c7d2fe;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .search-btn:hover {
-      background: rgba(79, 70, 229, 0.28);
-      transform: translateY(-1px);
-    }
-
-    .categories {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-    }
-
-    .category-btn {
-      padding: 5px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--muted);
-      cursor: pointer;
-      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .category-btn.active {
-      background: var(--accent-soft);
-      border-color: rgba(129, 140, 248, 0.9);
-      color: #e5e7eb;
-      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.4);
-      transform: translateY(-1px);
-    }
-
-    /* LAYOUT MAIN */
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
-      gap: 20px;
-      align-items: flex-start;
-    }
-
-    .lesson-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 14px;
-    }
-
-    .lesson-card {
-      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.12), transparent 55%),
-                  var(--card);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      overflow: hidden;
-      box-shadow: 0 14px 35px rgba(15, 23, 42, 0.9);
-      display: flex;
-      flex-direction: column;
-      transform: translateY(0);
-      opacity: 0;
-      animation: cardIn 0.6s ease forwards;
-    }
-
-    @keyframes cardIn {
-      from {
-        transform: translateY(12px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .lesson-card-media {
-      position: relative;
-      height: 150px;
-      overflow: hidden;
-    }
-
-    .lesson-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scale(1.02);
-      transition: transform 0.5s ease, filter 0.5s ease;
-    }
-
-    .lesson-card:hover .lesson-image {
-      transform: scale(1.06);
-      filter: brightness(1.05);
-    }
-
-    .lesson-card-content {
-      padding: 12px 13px 13px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .lesson-type-label {
-      font-size: 11px;
-      color: #a5b4fc;
-      background: rgba(79, 70, 229, 0.16);
-      border-radius: 999px;
-      padding: 3px 8px;
-      width: fit-content;
-      border: 1px solid rgba(129, 140, 248, 0.6);
-    }
-
-    .lesson-title {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .lesson-description {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .lesson-body {
-      margin-top: 4px;
-      font-size: 12px;
-      color: #e5e7eb;
-      line-height: 1.45;
-    }
-
-    .lesson-body p + p {
-      margin-top: 4px;
-    }
-
-    .keyword {
-      color: #c4b5fd;
-      font-weight: 500;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .keyword::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -1px;
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg, #a855f7, #4f46e5);
-      opacity: 0.7;
-    }
-
-    /* SIDEBAR */
-
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .sidebar-section {
-      background: rgba(15, 23, 42, 0.96);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      padding: 12px 13px 13px;
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
-    }
-
-    .sidebar-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .sidebar-subtitle {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .sidebar-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 12px;
-    }
-
-    .sidebar-list li {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 6px 7px;
-      border-radius: 9px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(31, 41, 55, 0.9);
-    }
-
-    .sidebar-list span.label {
-      color: #e5e7eb;
-    }
-
-    .sidebar-list span.meta {
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .filter-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .filter-chip {
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--muted);
-      cursor: pointer;
-      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .filter-chip.active {
-      background: var(--accent-soft);
-      border-color: rgba(129, 140, 248, 0.9);
-      color: #e5e7eb;
-      transform: translateY(-1px);
-    }
-
-    /* SERVICES / FOOTER */
-
-    .services {
-      margin-top: 26px;
-      padding: 18px 16px 18px;
-      border-radius: 22px;
-      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), #020617);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 18px;
-    }
-
-    .services-left h2 {
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-
-    .services-left p {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
-      font-size: 12px;
-    }
-
-    .service-card {
-      background: rgba(15, 23, 42, 0.95);
-      border-radius: 14px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      padding: 9px 10px;
-    }
-
-    .service-card h3 {
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
-
-    .service-card p {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .services-right {
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .stats-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-size: 11px;
-    }
-
-    .stat-pill {
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      color: #e5e7eb;
-    }
-
-    .faq-item + .faq-item {
-      margin-top: 6px;
-    }
-
-    .faq-item h4 {
-      font-size: 12px;
-      margin-bottom: 2px;
-    }
-
-    .faq-item p {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    footer {
-      margin-top: 18px;
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      border-top: 1px solid rgba(31, 41, 55, 0.9);
-      padding-top: 10px;
-    }
-
-    /* TOOLTIP */
-
-    #tooltip {
-      position: fixed;
-      z-index: 50;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: rgba(15, 23, 42, 0.98);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      color: #e5e7eb;
-      font-size: 11px;
-      pointer-events: none;
-      transform: translate(-50%, -120%);
-      white-space: nowrap;
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
-    }
-
-    #tooltip.hidden {
-      display: none;
-    }
-
-    /* RESPONSIVE */
-
-    @media (max-width: 960px) {
-      body {
-        padding: 16px;
-      }
-      .hero {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .hero-right {
-        order: -1;
-      }
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .services {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      footer {
-        flex-direction: column;
-      }
-    }
-  </style>
+  <meta name="description" content="Plateforme moderne de leçons de français : orthographe, grammaire, conjugaison, vocabulaire, expression écrite et compréhension orale." />
+  <meta name="theme-color" content="#020617" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f46e5'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-size='32' fill='white' font-family='system-ui'%3EA%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="page">
-    <header>
-      <div class="brand">
-        <div class="brand-logo">A</div>
+    <header class="topbar" role="banner">
+      <div class="brand" aria-label="AlaeAI – Plateforme de leçons de français">
+        <div class="brand-logo" aria-hidden="true">A</div>
         <div class="brand-text">
           <span>AlaeAI · Français</span>
           <span>Leçons structurées, prêtes pour la classe</span>
         </div>
       </div>
       <div class="top-actions">
-        <div class="pill">
+        <div class="pill" aria-hidden="true">
           <span class="pill-dot"></span>
           <span>Plateforme active · 2026</span>
         </div>
-        <button class="btn-ghost" id="darkModeToggle">
-          <span class="icon">🌙</span>
+        <button class="btn-ghost" id="darkModeToggle" type="button" aria-pressed="false">
+          <span class="icon" aria-hidden="true">🌙</span>
           <span>Mode sombre</span>
+        </button>
+        <button class="btn-ghost" id="adminLoginButton" type="button">
+          <span class="icon" aria-hidden="true">🔐</span>
+          <span>Admin</span>
+        </button>
+        <button class="btn-ghost hidden" id="adminLogoutButton" type="button">
+          <span class="icon" aria-hidden="true">🚪</span>
+          <span>Quitter admin</span>
         </button>
       </div>
     </header>
 
-    <section class="hero">
+    <section class="hero" aria-labelledby="hero-title">
       <div class="hero-left">
         <div class="hero-kicker">
           <span class="badge">Collège · Lycée</span>
           <span>Leçons de français structurées et modernes</span>
         </div>
-        <h1 class="hero-title">
+        <h1 class="hero-title" id="hero-title">
           Construis des <span class="highlight">leçons claires</span> et des documents prêts à utiliser en classe.
         </h1>
         <p class="hero-subtitle">
           Explore des leçons d’orthographe, de grammaire, de conjugaison, de vocabulaire, d’expression écrite et de compréhension orale, avec des mots-clés interactifs et des explications précises.
         </p>
-        <div class="hero-metas">
+        <div class="hero-metas" aria-hidden="true">
           <span>85+ leçons officielles</span>
           <span>Documents uploadés et créés</span>
           <span>Mots-clés en surbrillance</span>
         </div>
         <div class="hero-actions">
-          <button class="btn-primary">
+          <button class="btn-primary" id="scrollLessons" type="button">
             <span>Commencer avec les leçons</span>
-            <span>↳</span>
+            <span aria-hidden="true">↳</span>
           </button>
-          <button class="btn-outline">
+          <button class="btn-outline" id="scrollServices" type="button">
             <span>Découvrir les services pédagogiques</span>
           </button>
         </div>
+        <div class="admin-banner admin-only hidden" aria-live="polite">
+          <span class="admin-dot"></span>
+          <span>Mode administrateur actif · actions avancées débloquées.</span>
+        </div>
       </div>
-      <div class="hero-right">
+      <div class="hero-right" aria-hidden="true">
         <div class="hero-media">
           <img
             class="hero-image-main"
             src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80"
-            alt="Travail collaboratif autour d’une table"
+            alt="Groupe d’élèves travaillant autour d’une table"
           />
         </div>
       </div>
     </section>
 
-    <section class="toolbar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input id="searchInput" type="text" placeholder="Rechercher une leçon (ex : accord, dialogue, futur…)" />
-        <button id="searchButton" class="search-btn">
+    <section class="toolbar" aria-label="Recherche et catégories">
+      <form class="search-box" role="search" onsubmit="return false;">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Rechercher une leçon (ex : accord, dialogue, futur…)"
+          aria-label="Rechercher une leçon"
+        />
+        <button id="searchButton" class="search-btn" type="button">
           <span>Filtrer</span>
         </button>
-      </div>
-      <div class="categories">
-        <button class="category-btn active" data-category="all">Toutes</button>
-        <button class="category-btn" data-category="orthographe">Orthographe</button>
-        <button class="category-btn" data-category="grammaire">Grammaire</button>
-        <button class="category-btn" data-category="conjugaison">Conjugaison</button>
-        <button class="category-btn" data-category="vocabulaire">Vocabulaire</button>
-        <button class="category-btn" data-category="expression">Expression écrite</button>
-        <button class="category-btn" data-category="comprehension">Compréhension orale</button>
+      </form>
+      <div class="categories" role="tablist" aria-label="Types de leçons">
+        <button class="category-btn active" data-category="all" role="tab" aria-selected="true">Toutes</button>
+        <button class="category-btn" data-category="orthographe" role="tab" aria-selected="false">Orthographe</button>
+        <button class="category-btn" data-category="grammaire" role="tab" aria-selected="false">Grammaire</button>
+        <button class="category-btn" data-category="conjugaison" role="tab" aria-selected="false">Conjugaison</button>
+        <button class="category-btn" data-category="vocabulaire" role="tab" aria-selected="false">Vocabulaire</button>
+        <button class="category-btn" data-category="expression" role="tab" aria-selected="false">Expression écrite</button>
+        <button class="category-btn" data-category="comprehension" role="tab" aria-selected="false">Compréhension orale</button>
       </div>
     </section>
 
-    <main class="layout">
-      <section id="lessonsContainer" class="lesson-grid">
+    <main class="layout" aria-label="Contenu principal">
+      <section id="lessonsContainer" class="lesson-grid" aria-live="polite">
         <!-- Expression écrite -->
         <article class="lesson-card" data-category="expression" data-type="officielle">
           <div class="lesson-card-media">
             <img
               class="lesson-image"
-              src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=1200&q=80"
-              alt="Élève en train d’écrire"
+              src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=900&q=80"
+              alt="Élève en train d’écrire dans un cahier"
+              loading="lazy"
             />
           </div>
           <div class="lesson-card-content">
@@ -833,14 +126,20 @@
             <div class="lesson-body">
               <p>
                 Un paragraphe commence souvent par une
-                <span class="keyword" data-tooltip="Elle présente l’idée principale du paragraphe.">phrase d’introduction</span>
+                <button class="keyword" data-tooltip="Elle présente l’idée principale du paragraphe." type="button">
+                  phrase d’introduction
+                </button>
                 qui annonce le thème.
               </p>
               <p>
                 Viennent ensuite les
-                <span class="keyword" data-tooltip="Elles développent et justifient l’idée principale.">phrases de développement</span>
+                <button class="keyword" data-tooltip="Elles développent et justifient l’idée principale." type="button">
+                  phrases de développement
+                </button>
                 qui apportent des exemples, des explications ou des arguments, puis une
-                <span class="keyword" data-tooltip="Elle clôt le paragraphe ou prépare la transition.">phrase de conclusion</span>
+                <button class="keyword" data-tooltip="Elle clôt le paragraphe ou prépare la transition." type="button">
+                  phrase de conclusion
+                </button>
                 qui résume l’essentiel ou ouvre vers la suite.
               </p>
             </div>
@@ -851,8 +150,9 @@
           <div class="lesson-card-media">
             <img
               class="lesson-image"
-              src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80"
+              src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80"
               alt="Carnet et stylo sur une table"
+              loading="lazy"
             />
           </div>
           <div class="lesson-card-content">
@@ -864,18 +164,28 @@
             <div class="lesson-body">
               <p>
                 Les
-                <span class="keyword" data-tooltip="Mots qui relient les phrases et les idées.">connecteurs logiques</span>
+                <button class="keyword" data-tooltip="Mots qui relient les phrases et les idées." type="button">
+                  connecteurs logiques
+                </button>
                 structurent le texte : « d’abord », « ensuite », « enfin », « cependant », « en effet », « par conséquent ».
               </p>
               <p>
                 Ils indiquent la
-                <span class="keyword" data-tooltip="Ordre des événements.">chronologie</span>,
+                <button class="keyword" data-tooltip="Ordre des événements." type="button">
+                  chronologie
+                </button>,
                 la
-                <span class="keyword" data-tooltip="Pourquoi quelque chose se produit.">cause</span>,
+                <button class="keyword" data-tooltip="Pourquoi quelque chose se produit." type="button">
+                  cause
+                </button>,
                 la
-                <span class="keyword" data-tooltip="Ce qui résulte d’un fait.">conséquence</span>
+                <button class="keyword" data-tooltip="Ce qui résulte d’un fait." type="button">
+                  conséquence
+                </button>
                 ou l’
-                <span class="keyword" data-tooltip="Idée qui s’oppose à une autre.">opposition</span>.
+                <button class="keyword" data-tooltip="Idée qui s’oppose à une autre." type="button">
+                  opposition
+                </button>.
                 Bien les choisir rend ton texte plus clair et agréable à lire.
               </p>
             </div>
@@ -887,8 +197,9 @@
           <div class="lesson-card-media">
             <img
               class="lesson-image"
-              src="https://images.unsplash.com/photo-1517840933442-d2d1a05edb75?auto=format&fit=crop&w=1200&q=80"
-              alt="Élève avec casque audio"
+              src="https://images.unsplash.com/photo-1517840933442-d2d1a05edb75?auto=format&fit=crop&w=900&q=80"
+              alt="Élève portant un casque audio"
+              loading="lazy"
             />
           </div>
           <div class="lesson-card-content">
@@ -900,13 +211,19 @@
             <div class="lesson-body">
               <p>
                 Pour améliorer ta
-                <span class="keyword" data-tooltip="Capacité à comprendre un message entendu.">compréhension orale</span>,
+                <button class="keyword" data-tooltip="Capacité à comprendre un message entendu." type="button">
+                  compréhension orale
+                </button>,
                 commence par identifier le thème général, puis repère les
-                <span class="keyword" data-tooltip="Mots importants qui portent le sens.">mots-clés</span>.
+                <button class="keyword" data-tooltip="Mots importants qui portent le sens." type="button">
+                  mots-clés
+                </button>.
               </p>
               <p>
                 Tu peux écouter plusieurs fois, prendre des notes et te concentrer sur les
-                <span class="keyword" data-tooltip="Mots essentiels pour comprendre le message.">mots porteurs de sens</span>
+                <button class="keyword" data-tooltip="Mots essentiels pour comprendre le message." type="button">
+                  mots porteurs de sens
+                </button>
                 plutôt que sur chaque détail.
               </p>
             </div>
@@ -917,8 +234,9 @@
           <div class="lesson-card-media">
             <img
               class="lesson-image"
-              src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=1200&q=80"
+              src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=900&q=80"
               alt="Carnet de notes et stylo"
+              loading="lazy"
             />
           </div>
           <div class="lesson-card-content">
@@ -930,7 +248,9 @@
             <div class="lesson-body">
               <p>
                 Utilise des
-                <span class="keyword" data-tooltip="Formes abrégées de mots pour écrire plus vite.">abréviations</span>,
+                <button class="keyword" data-tooltip="Formes abrégées de mots pour écrire plus vite." type="button">
+                  abréviations
+                </button>,
                 des flèches et des symboles pour noter rapidement les idées principales.
               </p>
               <p>
@@ -945,8 +265,9 @@
           <div class="lesson-card-media">
             <img
               class="lesson-image"
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80"
               alt="Cahier et stylo pour l’orthographe"
+              loading="lazy"
             />
           </div>
           <div class="lesson-card-content">
@@ -958,14 +279,20 @@
             <div class="lesson-body">
               <p>
                 Le
-                <span class="keyword" data-tooltip="Lien entre le nom et les mots qui le complètent.">groupe nominal</span>
+                <button class="keyword" data-tooltip="Lien entre le nom et les mots qui le complètent." type="button">
+                  groupe nominal
+                </button>
                 s’accorde en genre et en nombre : « une petite maison », « des maisons blanches ».
               </p>
               <p>
                 Le verbe s’accorde avec le
-                <span class="keyword" data-tooltip="Mot qui indique qui fait l’action.">sujet</span>
+                <button class="keyword" data-tooltip="Mot qui indique qui fait l’action." type="button">
+                  sujet
+                </button>
                 : « Les élèves
-                <span class="keyword" data-tooltip="Verbe conjugué au pluriel.">travaillent</span>
+                <button class="keyword" data-tooltip="Verbe conjugué au pluriel." type="button">
+                  travaillent
+                </button>
                 en groupe. »
               </p>
             </div>
@@ -977,8 +304,9 @@
           <div class="lesson-card-media">
             <img
               class="lesson-image"
-              src="https://images.unsplash.com/photo-1522202195461-41a511c0e1e5?auto=format&fit=crop&w=1200&q=80"
+              src="https://images.unsplash.com/photo-1522202195461-41a511c0e1e5?auto=format&fit=crop&w=900&q=80"
               alt="Schéma de grammaire sur un bureau"
+              loading="lazy"
             />
           </div>
           <div class="lesson-card-content">
@@ -990,14 +318,20 @@
             <div class="lesson-body">
               <p>
                 Le
-                <span class="keyword" data-tooltip="Mot ou groupe de mots qui fait l’action.">sujet</span>
+                <button class="keyword" data-tooltip="Mot ou groupe de mots qui fait l’action." type="button">
+                  sujet
+                </button>
                 indique qui fait l’action, le
-                <span class="keyword" data-tooltip="Mot qui exprime l’action ou l’état.">verbe</span>
+                <button class="keyword" data-tooltip="Mot qui exprime l’action ou l’état." type="button">
+                  verbe
+                </button>
                 exprime l’action ou l’état.
               </p>
               <p>
                 Les
-                <span class="keyword" data-tooltip="Ils complètent le sens du verbe.">compléments</span>
+                <button class="keyword" data-tooltip="Ils complètent le sens du verbe." type="button">
+                  compléments
+                </button>
                 précisent où, quand, comment ou avec qui se déroule l’action.
               </p>
             </div>
@@ -1005,17 +339,17 @@
         </article>
       </section>
 
-      <aside class="sidebar">
+      <aside class="sidebar" aria-label="Filtres et informations">
         <section class="sidebar-section">
           <h3 class="sidebar-title">Filtrer les leçons</h3>
           <p class="sidebar-subtitle">
             Affiche uniquement les leçons qui t’intéressent selon le type ou l’origine.
           </p>
-          <div class="filter-chips">
-            <button class="filter-chip active" data-filter="all">Toutes</button>
-            <button class="filter-chip" data-filter="officielle">Officielles</button>
-            <button class="filter-chip" data-filter="upload">Uploadées</button>
-            <button class="filter-chip" data-filter="created">Créées</button>
+          <div class="filter-chips" role="group" aria-label="Origine des leçons">
+            <button class="filter-chip active" data-filter="all" type="button">Toutes</button>
+            <button class="filter-chip" data-filter="officielle" type="button">Officielles</button>
+            <button class="filter-chip" data-filter="upload" type="button">Uploadées</button>
+            <button class="filter-chip" data-filter="created" type="button">Créées</button>
           </div>
         </section>
 
@@ -1056,10 +390,38 @@
             </li>
           </ul>
         </section>
+
+        <section class="sidebar-section admin-only hidden">
+          <h3 class="sidebar-title">Panneau admin</h3>
+          <p class="sidebar-subtitle">
+            Mode administrateur : ajoute de nouvelles leçons directement dans la grille.
+          </p>
+          <button class="btn-primary btn-small" id="openCreateLessonModal" type="button">
+            + Ajouter une leçon
+          </button>
+          <ul class="sidebar-list admin-meta">
+            <li>
+              <span class="label">Statut</span>
+              <span class="meta">Connecté</span>
+            </li>
+            <li>
+              <span class="label">Leçons dynamiques</span>
+              <span class="meta" id="dynamicLessonsCount">0 ajoutée(s)</span>
+            </li>
+          </ul>
+        </section>
       </aside>
     </main>
 
-    <section class="services">
+    <section class="no-results hidden" id="noResultsMessage" aria-live="polite">
+      <div class="no-results-inner">
+        <h3>Aucune leçon trouvée</h3>
+        <p>Essaie un autre mot-clé ou réinitialise les filtres.</p>
+        <button id="resetFiltersButton" class="btn-outline" type="button">Réinitialiser les filtres</button>
+      </div>
+    </section>
+
+    <section class="services" id="servicesSection" aria-label="Services pédagogiques">
       <div class="services-left">
         <h2>Nos services pédagogiques</h2>
         <p>Une plateforme pensée pour les élèves, les enseignants et les créateurs de contenus éducatifs.</p>
@@ -1092,7 +454,7 @@
           </div>
         </div>
         <div>
-          <h3 style="font-size:13px;margin-bottom:4px;">Questions fréquentes</h3>
+          <h3 class="services-faq-title">Questions fréquentes</h3>
           <div class="faq-item">
             <h4>Comment trouver une leçon rapidement ?</h4>
             <p>Utilise la barre de recherche en haut de la page et les filtres par type de leçon.</p>
@@ -1109,251 +471,86 @@
       </div>
     </section>
 
-    <footer>
+    <footer role="contentinfo">
       <span>© 2026 · AlaeAI · Plateforme de leçons de français</span>
-      <span>Interface optimisée pour GitHub Pages · Projet en un seul fichier</span>
+      <span>Interface optimisée pour GitHub Pages · HTML / CSS / JS séparés</span>
     </footer>
   </div>
 
-  <div id="tooltip" class="hidden"></div>
+  <!-- Tooltip -->
+  <div id="tooltip" class="hidden" role="tooltip"></div>
 
-  <script>
-    const body = document.body;
-    const darkModeToggle = document.getElementById('darkModeToggle');
+  <!-- Admin modal -->
+  <div class="modal hidden" id="adminModal" aria-modal="true" role="dialog" aria-labelledby="adminModalTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog">
+      <button class="modal-close" data-close-modal="adminModal" type="button" aria-label="Fermer la fenêtre">✕</button>
+      <h3 id="adminModalTitle">Connexion administrateur</h3>
+      <p class="modal-subtitle">
+        Saisis le mot de passe administrateur pour activer les fonctionnalités avancées.
+      </p>
+      <input
+        type="password"
+        id="adminPasswordInput"
+        class="modal-input"
+        placeholder="Mot de passe admin"
+        aria-label="Mot de passe administrateur"
+      />
+      <p id="adminError" class="modal-error hidden"></p>
+      <button id="adminLoginConfirmButton" class="modal-btn-primary" type="button">Se connecter</button>
+    </div>
+  </div>
 
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
+  <!-- Create lesson modal -->
+  <div class="modal hidden" id="createLessonModal" aria-modal="true" role="dialog" aria-labelledby="createLessonTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog">
+      <button class="modal-close" data-close-modal="createLessonModal" type="button" aria-label="Fermer la fenêtre">✕</button>
+      <h3 id="createLessonTitle">Ajouter une nouvelle leçon</h3>
+      <p class="modal-subtitle">
+        Crée une carte de leçon qui sera ajoutée à la grille. Les données sont stockées localement dans ton navigateur.
+      </p>
 
-    const categoryButtons = document.querySelectorAll('.category-btn');
-    const filterChips = document.querySelectorAll('.filter-chip');
+      <label class="modal-label" for="lessonTitleInput">Titre de la leçon</label>
+      <input id="lessonTitleInput" class="modal-input" type="text" placeholder="Ex : Les temps du futur" />
 
-    const lessonsContainer = document.getElementById('lessonsContainer');
-    const tooltip = document.getElementById('tooltip');
+      <label class="modal-label" for="lessonCategorySelect">Catégorie</label>
+      <select id="lessonCategorySelect" class="modal-input">
+        <option value="orthographe">Orthographe</option>
+        <option value="grammaire">Grammaire</option>
+        <option value="conjugaison">Conjugaison</option>
+        <option value="vocabulaire">Vocabulaire</option>
+        <option value="expression">Expression écrite</option>
+        <option value="comprehension">Compréhension orale</option>
+      </select>
 
-    const heroPrimaryButton = document.querySelector('.btn-primary');
-    const heroSecondaryButton = document.querySelector('.btn-outline');
+      <label class="modal-label" for="lessonTypeSelect">Origine</label>
+      <select id="lessonTypeSelect" class="modal-input">
+        <option value="created">Créée</option>
+        <option value="officielle">Officielle</option>
+        <option value="upload">Uploadée</option>
+      </select>
 
-    let isDarkMode = false;
-    let activeCategory = 'all';
-    let activeTypeFilter = 'all';
+      <label class="modal-label" for="lessonDescriptionInput">Description courte</label>
+      <textarea
+        id="lessonDescriptionInput"
+        class="modal-input modal-textarea"
+        placeholder="Ex : Découvrir les différentes formes du futur et savoir les utiliser dans une phrase."
+      ></textarea>
 
-    function lessonCards() {
-      return Array.from(document.querySelectorAll('#lessonsContainer .lesson-card'));
-    }
+      <label class="modal-label" for="lessonImageInput">URL de l’image (optionnel)</label>
+      <input
+        id="lessonImageInput"
+        class="modal-input"
+        type="url"
+        placeholder="https://images.unsplash.com/..."
+      />
 
-    function normalizeText(text) {
-      return text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
+      <p id="createLessonError" class="modal-error hidden"></p>
+      <button id="createLessonConfirmButton" class="modal-btn-primary" type="button">Ajouter la leçon</button>
+    </div>
+  </div>
 
-    function applyDarkModeState() {
-      if (isDarkMode) {
-        body.classList.add('dark-mode');
-      } else {
-        body.classList.remove('dark-mode');
-      }
-    }
-
-    function toggleDarkMode() {
-      isDarkMode = !isDarkMode;
-      applyDarkModeState();
-      try {
-        localStorage.setItem('alaeai_dark_mode', isDarkMode ? '1' : '0');
-      } catch (e) {}
-    }
-
-    function initDarkMode() {
-      try {
-        const stored = localStorage.getItem('alaeai_dark_mode');
-        if (stored === '1') {
-          isDarkMode = true;
-        }
-      } catch (e) {}
-      applyDarkModeState();
-    }
-
-    function applyFilters() {
-      const searchValue = normalizeText(searchInput ? searchInput.value : '');
-      const cards = lessonCards();
-
-      cards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category') || 'all';
-        const cardType = card.getAttribute('data-type') || 'officielle';
-
-        let visible = true;
-
-        if (activeCategory !== 'all' && cardCategory !== activeCategory) {
-          visible = false;
-        }
-
-        if (activeTypeFilter !== 'all' && cardType !== activeTypeFilter) {
-          visible = false;
-        }
-
-        if (visible && searchValue) {
-          const titleEl = card.querySelector('.lesson-title');
-          const descEl = card.querySelector('.lesson-description');
-          const bodyEl = card.querySelector('.lesson-body');
-
-          const titleText = titleEl ? normalizeText(titleEl.textContent) : '';
-          const descText = descEl ? normalizeText(descEl.textContent) : '';
-          const bodyText = bodyEl ? normalizeText(bodyEl.textContent) : '';
-
-          const combined = titleText + ' ' + descText + ' ' + bodyText;
-          if (!combined.includes(searchValue)) {
-            visible = false;
-          }
-        }
-
-        if (visible) {
-          card.style.display = '';
-          card.classList.remove('hidden');
-        } else {
-          card.style.display = 'none';
-          card.classList.add('hidden');
-        }
-      });
-    }
-
-    function setActiveCategory(category) {
-      activeCategory = category;
-      categoryButtons.forEach(btn => {
-        const cat = btn.getAttribute('data-category') || 'all';
-        if (cat === category) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
-      applyFilters();
-    }
-
-    function setActiveTypeFilter(type) {
-      activeTypeFilter = type;
-      filterChips.forEach(chip => {
-        const filter = chip.getAttribute('data-filter') || 'all';
-        if (filter === type) {
-          chip.classList.add('active');
-        } else {
-          chip.classList.remove('active');
-        }
-      });
-      applyFilters();
-    }
-
-    function handleSearch() {
-      applyFilters();
-    }
-
-    function initKeywordTooltips() {
-      const keywords = document.querySelectorAll('.keyword');
-      keywords.forEach(keyword => {
-        keyword.addEventListener('mouseenter', e => {
-          const text = keyword.getAttribute('data-tooltip');
-          if (!text || !tooltip) return;
-          tooltip.textContent = text;
-          tooltip.classList.remove('hidden');
-          positionTooltip(e);
-        });
-
-        keyword.addEventListener('mousemove', e => {
-          positionTooltip(e);
-        });
-
-        keyword.addEventListener('mouseleave', () => {
-          if (!tooltip) return;
-          tooltip.classList.add('hidden');
-        });
-      });
-    }
-
-    function positionTooltip(e) {
-      if (!tooltip) return;
-      const offset = 14;
-      const x = e.clientX + offset;
-      const y = e.clientY + offset;
-      tooltip.style.left = x + 'px';
-      tooltip.style.top = y + 'px';
-    }
-
-    function initHeroButtons() {
-      if (heroPrimaryButton) {
-        heroPrimaryButton.addEventListener('click', () => {
-          window.scrollTo({
-            top: lessonsContainer.offsetTop - 70,
-            behavior: 'smooth'
-          });
-        });
-      }
-
-      if (heroSecondaryButton) {
-        heroSecondaryButton.addEventListener('click', () => {
-          const servicesSection = document.querySelector('.services');
-          if (!servicesSection) return;
-          window.scrollTo({
-            top: servicesSection.offsetTop - 70,
-            behavior: 'smooth'
-          });
-        });
-      }
-    }
-
-    function initSearchAndFilters() {
-      if (searchButton) {
-        searchButton.addEventListener('click', e => {
-          e.preventDefault();
-          handleSearch();
-        });
-      }
-
-      if (searchInput) {
-        searchInput.addEventListener('keydown', e => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSearch();
-          }
-        });
-
-        searchInput.addEventListener('input', () => {
-          applyFilters();
-        });
-      }
-
-      categoryButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cat = btn.getAttribute('data-category') || 'all';
-          setActiveCategory(cat);
-        });
-      });
-
-      filterChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-          const filter = chip.getAttribute('data-filter') || 'all';
-          setActiveTypeFilter(filter);
-        });
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initDarkMode();
-      initKeywordTooltips();
-      initHeroButtons();
-      initSearchAndFilters();
-
-      if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', () => {
-          toggleDarkMode();
-        });
-      }
-
-      setActiveCategory('all');
-      setActiveTypeFilter('all');
-      applyFilters();
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
