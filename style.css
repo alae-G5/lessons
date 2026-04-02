@@ -970,3 +970,112 @@ footer {
     flex-direction: column;
   }
 }
+/* =========================================================
+   ULTIMATE LESSON VIEW MODAL
+   ========================================================= */
+
+.lesson-view-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.lesson-view-modal.hidden {
+  display: none;
+}
+
+.lesson-view-modal .lesson-view-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(6px);
+}
+
+.lesson-view-dialog {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #020617;
+  border-radius: 20px;
+  border: 1px solid rgba(148,163,184,.3);
+  box-shadow: 0 25px 60px rgba(0,0,0,.8);
+  padding: 18px;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.lesson-view-modal.visible .lesson-view-dialog {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lesson-view-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.lesson-view-header {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.lesson-view-image {
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.lesson-view-info {
+  flex: 1;
+}
+
+.lesson-view-type {
+  font-size: 12px;
+  color: #a5b4fc;
+  margin-bottom: 4px;
+}
+
+.lesson-view-title {
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+
+.lesson-view-description {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.lesson-view-body {
+  font-size: 14px;
+  line-height: 1.55;
+  margin-top: 10px;
+}
+
+.lesson-view-edit-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg,#4f46e5,#7c3aed);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
